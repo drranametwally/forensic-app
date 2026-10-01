@@ -32,13 +32,14 @@ with col1:
     st.markdown("### 👤 بيانات الحالة وملف التحاليل (Case & Genomic Input)")
     case_id = st.text_input("كود أو رقم الحالة (Case ID)", "CASE-2026-001")
     
+    # جعل خيارات الحالة بالإنجليزية لضمان ظهورها بـ PDF نظيف وبدون مربعات
     case_type = st.selectbox(
         "نوع الحالة الحية والإكلينيكية (Case Type)",
         [
-            "اشتباه جرعة زائدة / تسمم حاد (Suspected Overdose / Poisoning)",
-            "متابعة الأيض الدوائي الإكلينيكي (Therapeutic Drug Monitoring)",
-            "السموم الجنائية (Forensic Toxicology Assessment)",
-            "تحديد الهوية والنسب المعقد (Complex Kinship & Human ID)"
+            "Suspected Overdose / Poisoning",
+            "Therapeutic Drug Monitoring (TDM)",
+            "Forensic Toxicology Assessment",
+            "Complex Kinship & Human Identification"
         ],
     )
 
@@ -157,7 +158,7 @@ st.markdown(
 )
 
 
-# --- دالة توليد الـ PDF المتكامل للتقرير بالتحاليل وموضع الحالة ---
+# --- دالة توليد الـ PDF المتكامل بالإنجليزية السليمة لتفادي المربعات ---
 def generate_pdf_report(
     case, c_type, c2d6, c2c19, oprm, ab, conclusion, status_risk
 ):
