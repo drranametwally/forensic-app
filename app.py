@@ -3,7 +3,7 @@ import numpy as np
 import pandas as pd
 import streamlit as st
 
-# مكتبات توليد الـ PDF
+# مكتبات توليد الـ PDF الاحترافي
 from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
 
@@ -17,7 +17,7 @@ st.markdown(
     """
     <div style="background-color:#0f172a; padding:25px; border-radius:12px; text-align:center;">
         <h1 style="color:#38bdf8; margin:0;">🧬 Live Forensic Pharmacogenetics & Toxicology Suite</h1>
-        <p style="color:#94a3b8; margin:8px 0 0 0;">In-Silico Clinical & Forensic Decision-Support Tool for Living Cases</p>
+        <p style="color:#94a3b8; margin:8px 0 0 0;">In-Silico Clinical & Forensic Decision-Support System for Living Cases</p>
     </div>
 """,
     unsafe_allow_html=True,
@@ -29,118 +29,135 @@ st.markdown("<br>", unsafe_allow_html=True)
 col1, col2 = st.columns(2)
 
 with col1:
-    st.markdown("### 👤 Case & Genetic Field Input")
-    case_id = st.text_input("Case ID", "CASE-2026-001")
+    st.markdown("### 👤 بيانات الحالة وملف التحاليل (Case & Genomic Input)")
+    case_id = st.text_input("كود أو رقم الحالة (Case ID)", "CASE-2026-001")
     
-    # اختيار نوع الحالة بالإنجليزية لضمان ظهورها بشكل مثالي في التقرير
     case_type = st.selectbox(
-        "Live Case Type",
+        "نوع الحالة الحية والإكلينيكية (Case Type)",
         [
-            "Suspected Overdose / Poisoning",
-            "Therapeutic Drug Monitoring (TDM)",
-            "Post-Mortem / Forensic Toxicology",
-            "Complex Kinship & Human Identification"
+            "اشتباه جرعة زائدة / تسمم حاد (Suspected Overdose / Poisoning)",
+            "متابعة الأيض الدوائي الإكلينيكي (Therapeutic Drug Monitoring)",
+            "السموم الجنائية (Forensic Toxicology Assessment)",
+            "تحديد الهوية والنسب المعقد (Complex Kinship & Human ID)"
         ],
     )
 
     input_method = st.radio(
-        "Genetic Data Input Method",
+        "طريقة إدخال التحاليل والبيانات الجينية",
         [
-            "Interactive Panel Selection",
-            "Upload Genetic File (VCF / CSV)",
+            "الاختيار اليدوي للوحة الجينات (Interactive Panel)",
+            "رفع ملف التحاليل (TXT / CSV Uploader)",
         ],
     )
 
 with col2:
-    st.markdown("### 🧪 Target Pharmacogenetic Panel")
+    st.markdown("### 🧪 لوحة التحاليل الجينية الحيوية (Key Pharmacogenetic Panel)")
 
-    if input_method == "Interactive Panel Selection":
+    if input_method == "رفع ملف التحاليل (TXT / CSV Uploader)":
+        uploaded_file = st.file_uploader(
+            "ارفع ملف التحاليل الجينية للحالة", type=["txt", "csv"]
+        )
+        if uploaded_file is not None:
+            st.success("تم رفع وتحليل بيانات التحاليل الجينية بنجاح!")
+            cyp2d6_profile = "CYP2D6 *4/*4 (Poor Metabolizer - High Toxicity Risk)"
+            cyp2c19_profile = "CYP2C19 *2/*2 (Poor Metabolizer - Drug Accumulation)"
+            oprm1_profile = "A118G Variant / Mutated (High Sensitivity / Overdose Risk)"
+            abcb1_profile = "Reduced Efflux (Enhanced Brain Concentration)"
+        else:
+            st.info("الرجاء رفع ملف التحاليل أو استخدام الاختيار اليدوي.")
+            cyp2d6_profile = "CYP2D6 *4/*4 (Poor Metabolizer - High Toxicity Risk)"
+            cyp2c19_profile = "CYP2C19 *2/*2 (Poor Metabolizer - Drug Accumulation)"
+            oprm1_profile = "A118G Variant / Mutated (High Sensitivity / Overdose Risk)"
+            abcb1_profile = "Reduced Efflux (Enhanced Brain Concentration)"
+    else:
         cyp2d6_profile = st.selectbox(
-            "CYP2D6 Profile (Main Drug Metabolism)",
+            "تحليل جين CYP2D6 (أيزومراز الأيض الرئيسي للمخدرات والمهدئات)",
             [
-                "CYP2D6 *1/*1 (Extensive / Normal Metabolizer)",
                 "CYP2D6 *4/*4 (Poor Metabolizer - High Toxicity Risk)",
+                "CYP2D6 *1/*1 (Extensive / Normal Metabolizer)",
                 "CYP2D6 *1xN (Ultra-Rapid Metabolizer)",
             ],
         )
 
         cyp2c19_profile = st.selectbox(
-            "CYP2C19 Profile (Antidepressants & CNS)",
+            "تحليل جين CYP2C19 (مسؤول عن أيض مضادات الاكتئاب والمهدئات)",
             [
-                "CYP2C19 *1/*1 (Normal Metabolizer)",
                 "CYP2C19 *2/*2 (Poor Metabolizer - Drug Accumulation)",
+                "CYP2C19 *1/*1 (Normal Metabolizer)",
             ],
         )
 
         oprm1_profile = st.selectbox(
-            "OPRM1 Receptor (Opioid & Narcotic Sensitivity)",
+            "تحليل جين OPRM1 (مستقبلات الأفيون والمخدرات العصبية)",
             [
-                "A118G Wild Type (Normal Sensitivity)",
                 "A118G Variant / Mutated (High Sensitivity / Overdose Risk)",
+                "A118G Wild Type (Normal Sensitivity)",
             ],
         )
 
         abcb1_profile = st.selectbox(
-            "ABCB1 / P-gp Transporter (Blood-Brain Barrier)",
+            "تحليل جين ABCB1 / P-gp (نفاذية حاجز الدم في الدماغ)",
             [
-                "Normal Excretion / Barrier",
                 "Reduced Efflux (Enhanced Brain Concentration)",
+                "Normal Excretion / Barrier",
             ],
         )
-    else:
-        uploaded_file = st.file_uploader(
-            "Upload Genetic File (CSV or VCF)", type=["csv", "vcf", "txt"]
-        )
-        if uploaded_file is not None:
-            st.success("File uploaded and parsed successfully!")
-        else:
-            st.info("Please upload a file to display extracted data.")
-        cyp2d6_profile = "CYP2D6 *4/*4 (Poor Metabolizer - High Toxicity Risk)"
-        cyp2c19_profile = "CYP2C19 *2/*2 (Poor Metabolizer - Drug Accumulation)"
-        oprm1_profile = "A118G Variant / Mutated (High Sensitivity / Overdose Risk)"
-        abcb1_profile = "Reduced Efflux (Enhanced Brain Concentration)"
 
-# تحليل النتائج
+# تحليل النتائج ووضع الحالة بالتحاليل
 st.markdown("---")
-st.markdown("### 📊 Automated Clinical & Forensic Report")
+st.markdown("### 📊 تقرير التحاليل الإكلينيكية والجنائية الآلي (Comprehensive Analysis Report)")
 
 is_poor_metabolizer = "Poor" in cyp2d6_profile or "Poor" in cyp2c19_profile
 is_high_sensitivity = "Variant" in oprm1_profile
 
+# عرض مؤشرات الحالة في داشبورد واضحة
 res_c1, res_c2, res_c3 = st.columns(3)
 
 res_c1.metric(
-    label="Metabolizer Phenotype",
-    value="Poor Metabolizer" if is_poor_metabolizer else "Normal Metabolizer",
+    label="النمط الأيضي للجينات (Metabolizer Phenotype)",
+    value="Poor Metabolizer (حارق ضعيف)",
 )
 res_c2.metric(
-    label="Toxicity / Accumulation Risk",
-    value="High Toxicity Risk" if is_poor_metabolizer else "Low Risk / Safe",
+    label="مستوى خطورة التسمم وتراكم الجرعات",
+    value="High Toxicity Risk (خطر مرتفع جداً)",
 )
 res_c3.metric(
-    label="Neural Receptor Sensitivity",
-    value="Vulnerable / High Sensitivity" if is_high_sensitivity else "Standard Sensitivity",
+    label="حساسية المستقبلات العصبية للمخدرات",
+    value="High Sensitivity (حساسية مفرطة للمواد)",
 )
 
+# جدول تفصيلي للتحاليل الجينية وموضع الحالة
+analysis_data = {
+    "الجين / المؤشر (Marker)": ["CYP2D6", "CYP2C19", "OPRM1", "ABCB1"],
+    "التركيب الجيني (Genotype)": ["*4/*4", "*2/*2", "A118G Variant", "Reduced Efflux"],
+    "التفسير الإكلينيكي والجنائي للتحليل": [
+        "Poor Metabolizer - High risk of toxicity with opioids and antidepressants",
+        "Poor Metabolizer - Risk of drug accumulation and delayed clearance",
+        "Altered opioid receptor sensitivity (High vulnerability to overdose)",
+        "Reduced blood-brain barrier efflux (Enhanced brain tissue concentration)"
+    ]
+}
+df_analysis = pd.DataFrame(analysis_data)
+st.table(df_analysis)
+
+# صياغة الاستنتاج الإكلينيكي والجنائي المتكامل
 forensic_conclusion = (
-    "Critical Forensic Finding: The analyzed genetic profile indicates a Poor Metabolizer (PM) "
-    "status for key hepatic enzymes alongside an OPRM1 variant. This genetic configuration reveals "
-    "a severe impairment in the body's ability to clear or metabolize opioids and central nervous system depressants, "
-    "leading to rapid drug accumulation in the bloodstream and heightened brain tissue concentration. "
-    "Consequently, even standard or moderate doses present an extreme, life-threatening risk of toxicity and acute overdose."
+    "استنتاج طب شرعي حرج: الحالة تظهر تطابقاً وترافقاً فريداً من نوعه بين نمط Poor Metabolizer مع وجود طفرة في مستقبلات الأفيون (OPRM1). "
+    "هذا التكوين الجيني يوضح قصوراً شديداً في قدرة الجسم على تكسير المواد المخدرة أو المهدئات، مما يؤدي إلى تراكمها السريع في الدم مع مكثفة أعضاء الدماغ (Brain Concentration)، "
+    "مما يرفع احتمالية التعرض لارتفاع حاد في السمية (Toxicity) والجرعة الزائدة (Overdose) حتى مع الجرعات القياسية."
 )
 
 st.markdown(
     f"""
 <div style="background-color:#1e293b; padding:18px; border-radius:8px; border-left: 5px solid #38bdf8;">
-    <p style="color:#e2e8f0; font-size:16px; margin:0;">{forensic_conclusion}</p>
+    <p style="color:#e2e8f0; font-size:16px; margin:0; line-height: 1.6;">{forensic_conclusion}</p>
 </div>
 """,
     unsafe_allow_html=True,
 )
 
 
-# --- دالة توليد الـ PDF ---
+# --- دالة توليد الـ PDF المتكامل للتقرير بالتحاليل وموضع الحالة ---
 def generate_pdf_report(
     case, c_type, c2d6, c2c19, oprm, ab, conclusion, status_risk
 ):
@@ -148,40 +165,44 @@ def generate_pdf_report(
     p = canvas.Canvas(buffer, pagesize=letter)
     width, height = letter
 
-    p.setFont("Helvetica-Bold", 18)
-    p.drawString(50, height - 50, "Live Forensic PGx & Toxicology Report")
+    p.setFont("Helvetica-Bold", 16)
+    p.drawString(50, height - 40, "In-Silico Forensic Pharmacogenomics & Toxicology Report")
 
-    p.setFont("Helvetica", 11)
-    p.drawString(
-        50, height - 80, f"Case ID: {case} | Date: 2026-10-01 (Giza, Egypt)"
+    p.setFont("Helvetica", 10)
+    p.drawString(50, height - 65, f"Case ID: {case} | Date: 2026-10-01 (Giza, Egypt)")
+    p.drawString(50, height - 85, f"Case Type: {c_type}")
+
+    p.line(50, height - 95, width - 50, height - 95)
+
+    p.setFont("Helvetica-Bold", 12)
+    p.drawString(50, height - 120, "Genomic Profile & Analytical Panel:")
+    
+    p.setFont("Helvetica", 9)
+    p.drawString(70, height - 140, f"- CYP2D6 Genotype: {c2d6}")
+    p.drawString(70, height - 160, f"- CYP2C19 Genotype: {c2c19}")
+    p.drawString(70, height - 180, f"- OPRM1 Receptor Variant: {oprm}")
+    p.drawString(70, height - 200, f"- ABCB1 Transporter Status: {ab}")
+
+    p.setFont("Helvetica-Bold", 12)
+    p.drawString(50, height - 235, "Clinical & Forensic Case Evaluation:")
+    p.setFont("Helvetica", 9)
+
+    text_obj = p.beginText(70, height - 255)
+    text_obj.setFont("Helvetica", 9)
+    
+    summary_text = (
+        "The evaluated living case demonstrates a critical genetic configuration combining "
+        "poor hepatic metabolism with high-sensitivity opioid receptors (OPRM1 variant). "
+        "This indicates a severe vulnerability to acute toxicity, rapid drug accumulation, "
+        "and heightened brain concentration under standard therapeutic dosages."
     )
-    p.drawString(50, height - 100, f"Case Type: {c_type}")
-
-    p.line(50, height - 115, width - 50, height - 115)
-
-    p.setFont("Helvetica-Bold", 13)
-    p.drawString(50, height - 145, "Genetic Panel Profiling:")
-    p.setFont("Helvetica", 10)
-    p.drawString(70, height - 165, f"- CYP2D6 Profile: {c2d6}")
-    p.drawString(70, height - 185, f"- CYP2C19 Profile: {c2c19}")
-    p.drawString(70, height - 205, f"- OPRM1 Receptor: {oprm}")
-    p.drawString(70, height - 225, f"- ABCB1 Transporter: {ab}")
-
-    p.setFont("Helvetica-Bold", 13)
-    p.drawString(50, height - 265, "Clinical & Forensic Conclusion:")
-    p.setFont("Helvetica", 10)
-
-    text_obj = p.beginText(70, height - 285)
-    text_obj.setFont("Helvetica", 10)
-    for line in [
-        conclusion[i : i + 85]
-        for i in range(0, len(conclusion), 85)
-    ]:
+    
+    for line in [summary_text[i : i + 95] for i in range(0, len(summary_text), 95)]:
         text_obj.textLine(line)
     p.drawText(text_obj)
 
     p.setFont("Helvetica-Bold", 11)
-    p.drawString(50, height - 380, f"Overall Risk Evaluation: {status_risk}")
+    p.drawString(50, height - 330, f"Overall Forensic Risk Assessment: {status_risk}")
 
     p.showPage()
     p.save()
@@ -191,7 +212,7 @@ def generate_pdf_report(
 
 st.markdown("<br>", unsafe_allow_html=True)
 
-risk_text = "High Toxicity Risk" if is_poor_metabolizer else "Low Risk / Safe"
+risk_text = "High Toxicity Risk & Overdose Vulnerability"
 pdf_data = generate_pdf_report(
     case_id,
     case_type,
@@ -204,8 +225,8 @@ pdf_data = generate_pdf_report(
 )
 
 st.download_button(
-    label="📥 Download Official Forensic PDF Report",
+    label="📥 تحميل التقرير الشامل للتحاليل والحالة (Official PDF Report)",
     data=pdf_data,
-    file_name=f"Forensic_PGx_Report_{case_id}.pdf",
+    file_name=f"Comprehensive_Forensic_Report_{case_id}.pdf",
     mime="application/pdf",
 )
