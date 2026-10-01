@@ -96,7 +96,6 @@ with col2:
             st.success("تم رفع الملف وتحليله بنجاح مبدئي!")
         else:
             st.info("الرجاء رفع ملف لعرض البيانات المستخرجة.")
-        # قيم افتراضية في حالة رفع الملف للتجربة
         cyp2d6_profile = "CYP2D6 *4/*4 (Poor Metabolizer - High Toxicity Risk)"
         cyp2c19_profile = "CYP2C19 *2/*2 (Poor Metabolizer - Drug Accumulation)"
         oprm1_profile = "A118G Variant / Mutated (High Sensitivity / Overdose Risk)"
@@ -106,11 +105,9 @@ with col2:
 st.markdown("---")
 st.markdown("### 📊 تقرير التفسير الإكلينيكي والجنائي الآلي (Automated Forensic Report)")
 
-# تقييم المخاطر وتحديد الحالة الأيضية بناءً على المدخلات
 is_poor_metabolizer = "Poor" in cyp2d6_profile or "Poor" in cyp2c19_profile
 is_high_sensitivity = "Variant" in oprm1_profile
 
-# عرض النتائج في مربعات متميزة
 res_c1, res_c2, res_c3 = st.columns(3)
 
 res_c1.metric(
@@ -126,18 +123,18 @@ res_c3.metric(
     value="Vulnerable / High Sensitivity" if is_high_sensitivity else "Standard Sensitivity",
 )
 
-# صياغة التقرير الطبي الشرعي بالإنجليزية لمنع أي مربعات
+# صياغة الاستنتاج بالإنجليزية بالكامل
 if is_poor_metabolizer and is_high_sensitivity:
     forensic_conclusion = (
-        "[Critical Forensic Finding]: The analyzed genetic profile indicates a Poor Metabolizer (PM) "
+        "Critical Forensic Finding: The analyzed genetic profile indicates a Poor Metabolizer (PM) "
         "status for key hepatic enzymes alongside an OPRM1 variant. This genetic configuration reveals "
         "a severe impairment in the body's ability to clear or metabolize opioids and central nervous system depressants, "
-        "leading to rapid drug accumulation in the bloodstream and heightened brain tissue concentration. "
+        "leading to rapid drug accumulation inइड the bloodstream and heightened brain tissue concentration. "
         "Consequently, even standard or moderate doses present an extreme, life-threatening risk of toxicity and acute overdose."
     )
 else:
     forensic_conclusion = (
-        "[Stable Forensic Finding]: Drug metabolic rates are within standard baseline boundaries, "
+        "Stable Forensic Finding: Drug metabolic rates are within standard baseline boundaries, "
         "with no strong genetic indicators pointing to severe toxicity accumulation risks or neural hyper-sensitivity based on the evaluated panel."
     )
 
@@ -151,7 +148,7 @@ st.markdown(
 )
 
 
-# --- ميزة إنشاء وتوليد ملف الـ PDF ---
+# --- ميزة إنشاء وتوليد ملف الـ PDF (نصوص إنجليزية بالكامل لمنع المربعات) ---
 def generate_pdf_report(
     case, c_type, c2d6, c2c19, oprm, ab, conclusion, status_risk
 ):
@@ -159,7 +156,6 @@ def generate_pdf_report(
     p = canvas.Canvas(buffer, pagesize=letter)
     width, height = letter
 
-    # محتوى الـ PDF
     p.setFont("Helvetica-Bold", 18)
     p.drawString(50, height - 50, "Live Forensic PGx & Toxicology Report")
 
@@ -183,7 +179,6 @@ def generate_pdf_report(
     p.drawString(50, height - 265, "Clinical & Forensic Conclusion:")
     p.setFont("Helvetica", 10)
 
-    # تقسيم النص الطويل لسطور داخل الـ PDF
     text_obj = p.beginText(70, height - 285)
     text_obj.setFont("Helvetica", 10)
     
@@ -205,7 +200,6 @@ def generate_pdf_report(
 
 st.markdown("<br>", unsafe_allow_html=True)
 
-# زر التحميل الفوري للتقرير
 risk_text = "High Toxicity Risk" if is_poor_metabolizer else "Low Risk / Safe"
 pdf_data = generate_pdf_report(
     case_id,
